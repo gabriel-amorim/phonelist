@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Axios from 'axios';
 import './home.css';
+import {useNavigate} from "react-router-dom"
 
 
 function Home() {
 
+    let navigate = useNavigate();
     var [contatos, setContatos] =  useState([]);
     const [display, setDisplay] = useState('none');
     const [title, setTitle] = useState('');
@@ -57,7 +59,7 @@ function Home() {
                 } else 
                     alert(response.data.statusText)              
             })
-            .catch(error => console.log(error));
+            .catch(error => console.log(error))
         } else {
             Axios.put('http://localhost:3001/contacts', {
                 id: contactId,
@@ -71,8 +73,19 @@ function Home() {
                 } else 
                     alert(response.data.statusText)  
             })
-            .catch(error => console.log(error));
+            .catch(error => console.log(error))
         }
+    }
+
+    const deleteContact = (id) => {
+            Axios.delete('http://localhost:3001/contacts/' + id, options).then((response) => {
+                if(response.status === 200) {
+                    alert('Contact deleted.')
+                    getContacts()
+                } else
+                    alert(response.data.message)
+            })
+            .catch(error => console.log(error));
     }
 
 
@@ -86,7 +99,8 @@ function Home() {
                 {contatos.map((el) => {
                    return <div key={el.id} className="contactDiv">
                     <h3 className="contactName">{el.name}</h3>
-                    <button className="buttonEdit" title="Change values" onClick={(e) => showModal(el.id, el.name, el.phone)}>Edit</button>
+                    <button className="buttonEdit" title="Edit contact" onClick={(e) => showModal(el.id, el.name, el.phone)}>Edit</button>
+                    <button className="buttonDelete" title="Delete contact" onClick={(e) => deleteContact(el.id)}>Del</button>
                     <p className="contactPhone">{el.phone}</p>
                     <div className="line"></div>
                    </div> 

@@ -58,8 +58,6 @@ app.post('/contacts', verifyJWT, (req, res) => {
     const name = req.body.name
     const phone = req.body.phone
 
-    console.log("caiu no post contatos: " + name, phone)
-
     db.query("INSERT INTO contatos (name, phone) VALUES (?,?)", [name, phone], (err, result) => {
         if(err)
             res.status(400).send({message: err.message});
@@ -73,8 +71,6 @@ app.put('/contacts', verifyJWT, (req, res) => {
     const userphone = req.body.phone
     const userid = req.body.id
 
-    console.log(userid, username, userphone)
-
     db.query("UPDATE contatos SET name = ?, phone = ? WHERE id = ?", [username, userphone, userid], (err, result) => {
         if(err)
             res.status(400).send({message: err.message});
@@ -83,12 +79,24 @@ app.put('/contacts', verifyJWT, (req, res) => {
     })
 })
 
+app.delete('/contacts/:id', verifyJWT, (req, res) => {
+    const userId = req.params.id
+    console.log("caiu na api delete: " + userId)
+
+    db.query("DELETE FROM contatos WHERE id = ?", [userId], (err, result) => {
+        if(err)
+            res.status(400).send({mesage: err.message})
+        else
+            res.status(200).send({result})            
+    })
+})
+
 app.post('/logout', (req, res) => {
     res.json({auth: false, token: null})
 })
 
 app.listen(3001, () => {
-    console.log('server running')
+    console.log('server running on http://localhost:3001')
 })
 
 function verifyJWT(req, res, next){

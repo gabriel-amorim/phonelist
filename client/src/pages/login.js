@@ -17,13 +17,11 @@ function Login() {
             username: username, 
             password: password
         }).then((response) => {
-            if (response.data.auth == false)
-                setLoginStatus(response.data.message);
-            else {
-                console.log(response.data)
+            if (response.data.auth == true) {
                 sessionStorage.setItem("token", response.data.token)
                 navigate('/home');
-            }
+            } else 
+                setLoginStatus(response.data.message);
         })};
 
     return (
