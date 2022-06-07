@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Axios from 'axios';
 import './home.css';
 import {useNavigate} from "react-router-dom"
+import boy1 from "../avatar/boy1.png"
 
 
 function Home() {
@@ -14,6 +15,7 @@ function Home() {
     const [contactName, setContactName] = useState('');
     const [contactPhone, setContactPhone] = useState('');
     const [contactId, setContactId] = useState('');
+    const [selectedFile, setSelectedFile] = useState(boy1);
     const options = {
         headers: {"token": sessionStorage.getItem("token") }
     }
@@ -25,7 +27,14 @@ function Home() {
     const getContacts = () => {
         Axios.get('http://localhost:3001/contacts', options)
         .then((response) => {
-            setContatos(response.data)
+            if(response.data.hasOwnProperty('auth') && response.data.auth == false) {
+                alert("Session expired")
+                sessionStorage.setItem("token", "")
+                navigate('/')
+            }
+
+            else
+                setContatos(response.data)
         })
         .catch(error => console.log(error))
     }
@@ -53,10 +62,15 @@ function Home() {
                 phone: contactPhone
             }, options).then((response) => {
                 if(response.status === 200) {
+                    console.log(response)
                     alert('Contact saved')
                     setDisplay('none')
                     getContacts()
-                } else 
+                } else if(response.data.hasOwnProperty('auth') && response.data.auth == false) {
+                    alert("Session expired")
+                    sessionStorage.setItem("token", "")
+                    navigate('/')
+                }else 
                     alert(response.data.statusText)              
             })
             .catch(error => console.log(error))
@@ -70,7 +84,11 @@ function Home() {
                     alert('Contact saved')
                     setDisplay('none')
                     getContacts()
-                } else 
+                } else if(response.data.hasOwnProperty('auth') && response.data.auth == false) {
+                    alert("Session expired")
+                    sessionStorage.setItem("token", "")
+                    navigate('/')
+                }else 
                     alert(response.data.statusText)  
             })
             .catch(error => console.log(error))
@@ -82,8 +100,12 @@ function Home() {
                 if(response.status === 200) {
                     alert('Contact deleted.')
                     getContacts()
-                } else
-                    alert(response.data.message)
+                } else if(response.data.hasOwnProperty('auth') && response.data.auth == false) {
+                    alert("Session expired")
+                    sessionStorage.setItem("token", "")
+                    navigate('/')
+                }else 
+                    alert(response.data.statusText) 
             })
             .catch(error => console.log(error));
     }
@@ -98,6 +120,7 @@ function Home() {
                 <>
                 {contatos.map((el) => {
                    return <div key={el.id} className="contactDiv">
+                    <img className="avatar" src={selectedFile}/>
                     <h3 className="contactName">{el.name}</h3>
                     <button className="buttonEdit" title="Edit contact" onClick={(e) => showModal(el.id, el.name, el.phone)}>Edit</button>
                     <button className="buttonDelete" title="Delete contact" onClick={(e) => deleteContact(el.id)}>Del</button>
